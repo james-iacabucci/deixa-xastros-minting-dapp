@@ -9,7 +9,7 @@ import Link from '@mui/material/Link';
 import Tooltip from '@mui/material/Tooltip';
 
 import { useMoralis, useChain } from "react-moralis";
-import logo from "../../assets/Logos/SB_Simple_White.png";
+import logo from "../../assets/Logos/DeixaFlat.png";
 import CollectionConfig from '../../Config/CollectionConfig';
 
 export default function Header({values, userWallet, signOut, setError, isTestNet, processing, setProcessing, nftContractOptions, stakingContractOptions}) {
@@ -68,7 +68,7 @@ export default function Header({values, userWallet, signOut, setError, isTestNet
       <AppBar position="fixed" elevation={2} sx={{ backgroundColor : 'black'}}>
         <Toolbar>
           <Link sx={{ cursor: 'pointer' }} onClick={() => openInNewTab("https://shebloomsnft.io")}>
-            <img src={logo} alt="logo" style={{width: "200px"}}/>
+            <img src={logo} alt="logo" style={{width: "125px"}}/>
           </Link>
           {account && isAuthenticated && 
             <Stack spacing={1} direction="row" alignItems={"center"} sx={{ marginLeft: "auto"}}>

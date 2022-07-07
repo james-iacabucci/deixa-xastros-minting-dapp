@@ -1,7 +1,7 @@
 {
-  "homepage": "https://mint.shebloomsnft.io",
-  "name": "sheblooms-launch",
-  "version": "0.1.0",
+  "homepage": "https://mint.deixa.io",
+  "name": "deixa-xastros-minting-dapp",
+  "version": "1.0",
   "private": true,
   "dependencies": {
     "@emotion/react": "^11.8.1",

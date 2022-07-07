@@ -19,8 +19,8 @@ import { useMoralis, useNativeBalance, useChain } from "react-moralis";
 
 // DAPP COMPONENTS
 import Header from './../Header/Header';
-import background from "../../assets/background3.png";
-import logo from "../../assets/Logos/SB_Full_White_Padding.png";
+import background from "../../assets/background.png";
+import logo from "../../assets/Logos/DeixaFlat.png";
 import CollectionConfig from '../../Config/CollectionConfig';
 import CollectionInfo from './../Collection/CollectionInfo';
 
@@ -321,7 +321,7 @@ async function initWallet() {
           
           <Card raised={true} sx={{ overflow: 'visible' }}>
 
-            <CardMedia component="img" image={logo} alt="She Blooms" sx={{backgroundColor: "black" }}/>
+            <CardMedia component="img" image={logo} alt="She Blooms" sx={{backgroundColor: "black", paddingTop: 3, paddingBottom: 3 }}/>
 
             {!processing && !isWalletConnected() && 
               <>
