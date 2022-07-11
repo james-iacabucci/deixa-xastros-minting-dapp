@@ -1,0 +1,23 @@
+{
+  "files": {
+    "main.css": "/deixa-xastros-minting-dapp/static/css/main.6dea0f05.chunk.css",
+    "main.js": "/deixa-xastros-minting-dapp/static/js/main.8cc3f4e8.chunk.js",
+    "main.js.map": "/deixa-xastros-minting-dapp/static/js/main.8cc3f4e8.chunk.js.map",
+    "runtime-main.js": "/deixa-xastros-minting-dapp/static/js/runtime-main.8371048a.js",
+    "runtime-main.js.map": "/deixa-xastros-minting-dapp/static/js/runtime-main.8371048a.js.map",
+    "static/js/2.de73b43f.chunk.js": "/deixa-xastros-minting-dapp/static/js/2.de73b43f.chunk.js",
+    "static/js/2.de73b43f.chunk.js.map": "/deixa-xastros-minting-dapp/static/js/2.de73b43f.chunk.js.map",
+    "index.html": "/deixa-xastros-minting-dapp/index.html",
+    "static/css/main.6dea0f05.chunk.css.map": "/deixa-xastros-minting-dapp/static/css/main.6dea0f05.chunk.css.map",
+    "static/js/2.de73b43f.chunk.js.LICENSE.txt": "/deixa-xastros-minting-dapp/static/js/2.de73b43f.chunk.js.LICENSE.txt",
+    "static/media/DeixaFlat.9b4ee11a.png": "/deixa-xastros-minting-dapp/static/media/DeixaFlat.9b4ee11a.png",
+    "static/media/Xastro.0b4efdea.png": "/deixa-xastros-minting-dapp/static/media/Xastro.0b4efdea.png",
+    "static/media/background4.6168cf6d.png": "/deixa-xastros-minting-dapp/static/media/background4.6168cf6d.png"
+  },
+  "entrypoints": [
+    "static/js/runtime-main.8371048a.js",
+    "static/js/2.de73b43f.chunk.js",
+    "static/css/main.6dea0f05.chunk.css",
+    "static/js/main.8cc3f4e8.chunk.js"
+  ]
+}
