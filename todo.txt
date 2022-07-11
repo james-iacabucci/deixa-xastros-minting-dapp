@@ -1,41 +1,49 @@
-ADMIN 
-- decide on Pinata or Arweave
+COLLECTION ART 
+- layer/trait names and rarity
+- NFT description, name and other metadata
+- collection metadata
 
-WALLET CONNECTED
-- refactor/clean up dapp and clone code
-- add pre-sale limit
+MINTING DAPP
+
+- add promoter tracking (owned, paid, enable/disable)
+-- register code or store whatever is passed
+-- promoter register so we record their wallet, us so its stored in the contract, or record anything
+-- if promoter code not found, reject purchase, ignore, record unregistered code anyway
+
+- logging of errors to Moralis db
+- add dollar purchase price
 - test/tune for mobile
-
 - test different wallets
-- Add nice welcome message with link to instructions metamask / ETH fiat 
+- Add nice welcome message with link to instructions (metamask setup, buy ETH, walletconnect, crossmint) 
 - Add T&C before purchase (checkbox ahead of time to enable buy button)
-- add link to shebloomsnft.io, copywrite, help links (email or discord or ?), refresh page as first step
-- if in test, allow setting of sale date (so countdown can read it) 
+- add links to copyright and help (email or discord or ?)
+- turn on transaction sync on Moralis and ensure we're capturing all tx (even those that fail)
+
 - add auto refresh when events are emitted 
 - add drop down on wallet address (balance, disconnect, etherscan, etc)
-- turn on transaction sync on Moralis and ensure we're capturing all tx (even those that fail)
 - restructure so same base project can be used for all projects (move to env? have "projects" shared config with env setting?)
+- if in test, allow setting of sale date (so countdown can read it) 
 
 CONTRACT
-- maybe upgtrade to 721A (v4)
-- retest deployer address vs owner address in how collection appears in Opensea
-- ensure metadata is compatible on Rarable and others
-- add events/emit 
-- add promoter tracking (owned, paid, enable/disable)
-- add reward claimed feature 
-- test changing IPFS location
-- allow payment address (or addresses) to be changed, or have withdrawl requrire an address (remove other payees)
-- add multiple owners (add, remove) and change onlyOwner
-- add royalty info (std, opensea, rarable)
-- return addresses of all current owners with balances (enumerable?)
-- make function to set all sale params at once
-- return list of all free / gold list claimers (enumberable?)
-- get frozen metadata working
-- add metadata to contract for OpenSea and others to read (collection level info)
-- test automation
-- add countdown auto-unlock
-- limit max owned?
 
+- expose more 721A functions
+
+- return addresses of all current owners with balances (enumerable?)
+- return list of all free / gold list claimers (enumberable?)
+- ensure metadata is compatible on Rarible and others
+- retest deployer address vs owner address in how collection appears in Opensea
+- finish test automation
+- test with Ledger wallet to deploy / sign
+
+- add reward claimed feature to reward contract (login, read wallet for NFTs owned, ask reward contract if claimed, claim)
+- maybe upgrade to 721A (v4)
+- allow payment address (or addresses) to be changed
+- add multiple owners (add, remove) and change onlyOwner
+- add royalty info (opensea, rarable)
+- add countdown auto-unlock
+- limit max owned
+- get frozen metadata working
+- add events/emit 
 - investigate staking (duration of ownership, locked vs transferred)
 - earn by owning / commitment to not sell (locked for x days)
 - use charm bracelet for free and gold list?
@@ -44,35 +52,28 @@ HOSTING
 - test AWS Hosting (https://docs.aws.amazon.com/amplify/latest/userguide/custom-domains.html)
 - GITHUB (is Cloudflare needed? https://blog.cloudflare.com/secure-and-fast-github-pages-with-cloudflare/)
 
-HANDLE ERRORS
-- reverted transaction  
-
-COLLECTION ART 
-- layer/trait names and rarity
-
 RELEASE
 - setup production Morais and Infura accounts
+- setup production admin wallet
 - read Hashlips discord for issues (and search Google)
-- update env to prod
-
-
-NEXT STEPS
-cool cats
-- change to mainnet in header (see cool cats)
-- browse collection
-- browse your nfts
-show steps for staking (approve then stake)
-
+- update env to prod accounts 
+- set contract metadata
+- set art metadata defaults and prereveal
+update CollectionConfig (opensea url, etc..)
+- should we spend the $ to do a test on MainNet (with different images/contract names)?
 
 TESTING 
-- should we spend the $ to do a test on MainNet (with different images/contract names)?
-- transfer testing scripts from contract and dapp to our project
+- allow each sale type to have limits
+- handle reverted/rejected transactions  
+- make function to set all sale params at once
+- test changing IPFS location (basedURI, hiddenMetadataURI)
 - not enough funds disables purchase
 - sold out disables purchase and shows message
 - not on mainnet disables purchase and shows message
 - no wallet, nice message and link to setup wallet
 - show balance when wallet connected, hide when not
 - if not enough funds, show message 
+- contractMetaDataUri returns link to collection json (https://docs.opensea.io/docs/contract-level-metadata)
 - if sold out, show message and disable purchase and show view on open sea 
 - no metamask installed
 - mobile purchase and responsive design
@@ -89,9 +90,15 @@ TESTING
 - limit total goldlist purchases (claimed already)
 - limit total freelist purchases (claimed already)
 - if contract address owner, show admin toolbar with all functions 
-- add test/prod mode & change messaging / disable to not on test or not on main
+- add test/prod mode & change messaging to "not on test" or "not on main"
 - allow change of uri in case something goes wrong (or pinata fails)
 
+NEXT STEPS
+look at cool cats
+- change to mainnet in header (see cool cats)
+- browse collection
+- browse your nfts
+show steps for staking (approve then stake)
 
 
 
