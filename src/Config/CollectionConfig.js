@@ -1,6 +1,6 @@
 const CollectionConfig = {
   contractName: 'DeixaXastroCollection',
-  contractAddress: '0xfAd726e7BBafE77E4c6fB2547F50473Fc178F1F8',
+  contractAddress: '0x52B336939441C96a5710ff49dF1b674d023aC5ff',
   openSeaURL: 'opensea.io/collection/deixa-xastro-origin',
 };
 

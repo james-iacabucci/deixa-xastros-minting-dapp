@@ -1,5 +1,5 @@
 {
-  "homepage": "https://mint.deixa.io",
+  "homepage": "https://james-iacabucci.github.io/deixa-xastros-minting-dapp",
   "name": "deixa-xastro-minting-dapp",
   "version": "1.0",
   "private": true,
@@ -19,6 +19,7 @@
     "react-confetti-explosion": "^1.0.3",
     "react-dom": "^17.0.2",
     "react-moralis": "^1.3.2",
+    "react-router-dom": "^6.3.0",
     "react-scripts": "4.0.3",
     "web-vitals": "^2.1.4"
   },

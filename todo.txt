@@ -4,14 +4,8 @@ COLLECTION ART
 - collection metadata
 
 MINTING DAPP
-
-- add promoter tracking (owned, paid, enable/disable)
--- register code or store whatever is passed
--- promoter register so we record their wallet, us so its stored in the contract, or record anything
--- if promoter code not found, reject purchase, ignore, record unregistered code anyway
-
-- logging of errors to Moralis db
 - add dollar purchase price
+- logging of errors to Moralis db
 - test/tune for mobile
 - test different wallets
 - Add nice welcome message with link to instructions (metamask setup, buy ETH, walletconnect, crossmint) 
@@ -25,9 +19,7 @@ MINTING DAPP
 - if in test, allow setting of sale date (so countdown can read it) 
 
 CONTRACT
-
 - expose more 721A functions
-
 - return addresses of all current owners with balances (enumerable?)
 - return list of all free / gold list claimers (enumberable?)
 - ensure metadata is compatible on Rarible and others
@@ -63,6 +55,7 @@ update CollectionConfig (opensea url, etc..)
 - should we spend the $ to do a test on MainNet (with different images/contract names)?
 
 TESTING 
+- add promoter tracking
 - allow each sale type to have limits
 - handle reverted/rejected transactions  
 - make function to set all sale params at once

@@ -1,6 +1,7 @@
 // REACT LIBRARIES
 import * as React from 'react';
 import { useEffect, useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 
 // UI LIBRARIES
 import { Card, CardMedia, Stack, Divider, Container } from '@mui/material';
@@ -56,8 +57,10 @@ const defaultState = {
 };
 
 function App() {
+  const [searchParam, setSearchParam] = useSearchParams();
+  const [promotionCode, setPromotionCode] = useState(searchParam.get('promo'));
+
   const [error, setError] = useState('');
-  const [promotionCode, setPromotionCode] = useState('');
   const [mintAmount, setMintAmount] = useState(1);
   const [values, setValues] = useState(defaultState);
   const [processing, setProcessing] = useState(false);
@@ -115,6 +118,7 @@ function App() {
 
   useEffect(() => {
     console.log('VALUES', values);
+    console.log('PARAM', promotionCode);
   }, [values]);
 
   async function initWallet() {
