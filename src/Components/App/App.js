@@ -9,13 +9,14 @@ import { Card, CardMedia, Stack, Divider, Container } from '@mui/material';
 // WEB3 LIBRARIES
 import { BigNumber } from 'ethers';
 import { useMoralis, useNativeBalance, useChain } from 'react-moralis';
+import { CrossmintPayButton } from '@crossmint/client-sdk-react-ui';
 
 // DAPP ASSETS
 import Header from './../Header/Header';
 import Freelist from '../Utils/Freelist';
 import Goldlist from '../Utils/Goldlist';
-import background from '../../Assets/background4.png';
-import XastroLogo from '../../Assets/Logos/Xastro.png';
+import background from '../../assets/background4.png';
+import XastroLogo from '../../assets/Logos/Xastro.png';
 import CollectionConfig from '../../Config/CollectionConfig';
 
 // DAPP COMPONENTS
@@ -117,8 +118,8 @@ function App() {
   }, [isAuthenticated, isWeb3Enabled, account, chain]);
 
   useEffect(() => {
-    console.log('VALUES', values);
-    console.log('PARAM', promotionCode);
+    //console.log('VALUES', values);
+    //console.log('PARAM', promotionCode);
   }, [values]);
 
   async function initWallet() {
@@ -252,6 +253,9 @@ function App() {
   const showNotOnMainNet = () => !processing && !values.isReleased && isMainNet();
   const showNotOnTestNet = () => !processing && values.isReleased && !isMainNet();
 
+  const mintCostInEth = () => Moralis.Units.FromWei(values.tokenPrice, 18) * mintAmount;
+  console.log(`"${mintCostInEth().toString()}"`);
+
   return (
     <Container disableGutters maxWidth="false">
       <Header
@@ -298,6 +302,15 @@ function App() {
               <Divider />
 
               {showMintingControls() && <MintingControls values={values} mintAmount={mintAmount} setMintAmount={setMintAmount} mintNFT={mintNFT} />}
+
+              {/*               <CrossmintPayButton
+                collectionTitle="Xastro Origin"
+                collectionDescription="DEIXA Xastro Origin is a collection of 14,444 unique NFTs that are the gateway to an innovative diverse & inclusive community, built around epic reward experiences and obsessed with data privacy, respect and transparency."
+                collectionPhoto="<COLLECTION_IMAGE_URL>"
+                clientId="9d9a47e1-cf27-4c12-836a-955b4f3dc8f1"
+                mintConfig={{ type: 'erc-721', totalPrice: `"${mintCostInEth().toString()}"`, _mintAmount: `"${mintAmount.toString()}"`, _promotionCode: promotionCode ? promotionCode : 'deixa' }}
+                environment="staging"
+              /> */}
             </Card>
 
             {/* ADDITIONAL INFO CARDS FOR VARIOUS CONDITIONS */}

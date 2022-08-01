@@ -9,7 +9,7 @@ import Link from '@mui/material/Link';
 import Tooltip from '@mui/material/Tooltip';
 
 import { useMoralis, useChain } from 'react-moralis';
-import logo from '../../Assets/Logos/DeixaFlat.png';
+import logo from '../../assets/Logos/DeixaFlat.png';
 
 export default function Header({ values, userWallet, signOut, setError, isTestNet, processing, setProcessing, nftContractOptions, stakingContractOptions }) {
   const { isAuthenticated, Moralis, account } = useMoralis();
