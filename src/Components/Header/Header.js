@@ -1,17 +1,18 @@
 import * as React from 'react';
 
 import AppBar from '@mui/material/AppBar';
-import Toolbar from '@mui/material/Toolbar';
 import Button from '@mui/material/Button';
-import Stack from '@mui/material/Stack';
 import Chip from '@mui/material/Chip';
 import Link from '@mui/material/Link';
+import Stack from '@mui/material/Stack';
+import Toolbar from '@mui/material/Toolbar';
 import Tooltip from '@mui/material/Tooltip';
 
-import { useMoralis, useChain } from 'react-moralis';
-import logo from '../../assets/Logos/DeixaFlat.png';
+import { useChain, useMoralis } from 'react-moralis';
+import logo from '../../Assets/Logos/DeixaFlat.png';
+import AppConfig from '../../Config/AppConfig';
 
-export default function Header({ values, userWallet, signOut, setError, isTestNet, processing, setProcessing, nftContractOptions, stakingContractOptions }) {
+export default function Header({ values, userWallet, signOut, setError, isTestNet, processing, setProcessing, nftContractOptions, viewMyAssets, viewHome }) {
   const { isAuthenticated, Moralis, account } = useMoralis();
   const { chain } = useChain();
 
@@ -47,6 +48,19 @@ export default function Header({ values, userWallet, signOut, setError, isTestNe
     }
   }
 
+  const onBuyETHClick = async () => {
+    let response = await Moralis.Plugins.fiat.buy(
+      {
+        coin: 'ETH',
+        receiver: account,
+      },
+      {
+        disableTriggers: true,
+      },
+    );
+    window.open(response.data, '_blank');
+  };
+
   return (
     <>
       <AppBar position="fixed" elevation={2} sx={{ backgroundColor: 'black' }}>
@@ -56,6 +70,9 @@ export default function Header({ values, userWallet, signOut, setError, isTestNe
           </Link>
           {account && isAuthenticated && (
             <Stack spacing={1} direction="row" alignItems={'center'} sx={{ marginLeft: 'auto' }}>
+              {viewMyAssets && <Chip variant="outlined" color="primary" label="Home" sx={{ display: { xs: 'none', md: 'flex' } }} onClick={() => viewHome()} />}
+              {viewMyAssets && <Chip variant="outlined" color="primary" label="My Assets" sx={{ display: { xs: 'none', md: 'flex' } }} onClick={() => viewMyAssets()} />}
+              <Chip variant="outlined" color="primary" label="Buy ETH" sx={{ display: { xs: 'none', md: 'flex' } }} onClick={() => onBuyETHClick()} />
               <Chip variant="outlined" color="primary" label={chain?.name} sx={{ display: { xs: 'none', md: 'flex' } }} />
               <Tooltip title={account ? account : '...'}>
                 <Chip variant="outlined" color="primary" label={`${account?.substring(0, 4).toUpperCase()}....${account?.slice(-4).toUpperCase()}`} sx={{ display: { xs: 'none', sm: 'flex' } }} />
@@ -85,7 +102,7 @@ export default function Header({ values, userWallet, signOut, setError, isTestNe
                 size="small"
                 variant="contained"
                 sx={{ color: 'white' }}
-                onClick={() => openInNewTab(`https://${isTestNet() ? 'rinkeby.' : ''}etherscan.io/address/${nftContractOptions.contractAddress}`)}
+                onClick={() => openInNewTab(`https://${isTestNet() ? `${AppConfig.supportChainName.toLowerCase()}.` : ''}etherscan.io/address/${nftContractOptions.contractAddress}`)}
               >
                 View Contract
               </Button>

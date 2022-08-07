@@ -4,33 +4,35 @@ import { useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 
 // UI LIBRARIES
-import { Card, CardMedia, Stack, Divider, Container } from '@mui/material';
+import { Card, CardMedia, Container, Divider, Grid, Stack } from '@mui/material';
 
 // WEB3 LIBRARIES
 import { BigNumber } from 'ethers';
-import { useMoralis, useNativeBalance, useChain } from 'react-moralis';
-import { CrossmintPayButton } from '@crossmint/client-sdk-react-ui';
+import { useChain, useMoralis, useNativeBalance } from 'react-moralis';
 
 // DAPP ASSETS
-import Header from './../Header/Header';
+import background from '../../Assets/background4.png';
+import XastroLogo from '../../Assets/Logos/Xastro.png';
+import CollectionConfig from '../../Config/CollectionConfig';
 import Freelist from '../Utils/Freelist';
 import Goldlist from '../Utils/Goldlist';
-import background from '../../assets/background4.png';
-import XastroLogo from '../../assets/Logos/Xastro.png';
-import CollectionConfig from '../../Config/CollectionConfig';
+import Header from './../Header/Header';
 
 // DAPP COMPONENTS
-import SoldOut from '../Status/SoldOut';
-import SaleClosed from '../Status/SaleClosed';
-import WrongNetwork from '../Status/WrongNetwork';
+import logo from '../../Assets/Logos/DeixaFlat.png';
+import AppConfig from '../../Config/AppConfig';
+import CollectionInfo from '../CollectionInfo/CollectionInfo';
+import MintingControls from '../MintingControls/MintingControls';
+import Nft from '../Nft';
+import LoadingCollectionInfo from '../Status/LoadingCollectionInfo';
 import NoContractFond from '../Status/NoContractFound';
 import NoWalletConnected from '../Status/NoWalletConnected';
-import SomethingWentWrong from '../Status/SomethingWentWrong';
-import CollectionInfo from '../CollectionInfo/CollectionInfo';
-import TransactionComplete from '../Status/TransactionComplete';
-import MintingControls from '../MintingControls/MintingControls';
-import LoadingCollectionInfo from '../Status/LoadingCollectionInfo';
 import ProcessingTransaction from '../Status/ProcessingTransaction';
+import SaleClosed from '../Status/SaleClosed';
+import SoldOut from '../Status/SoldOut';
+import SomethingWentWrong from '../Status/SomethingWentWrong';
+import TransactionComplete from '../Status/TransactionComplete';
+import WrongNetwork from '../Status/WrongNetwork';
 
 const nftContractAbi = require('../../Config/DeixaXastroCollection.json').abi;
 
@@ -51,6 +53,7 @@ const defaultState = {
   isUserInFreelist: false,
   isUserInGoldlist: false,
   nftWallet: [],
+  nfts: [],
   isReleased: false,
   saleStage: null,
   merkleProofManualAddress: '',
@@ -68,6 +71,7 @@ function App() {
   const [transaction, setTransaction] = useState(null);
   const [contractFound, setContractFound] = useState(false);
   const [transactionCompleted, setTransactionCompleted] = useState(false);
+  const [shouldShowMyAssets, setShowMyAssets] = useState(false);
 
   const { chainId } = useChain();
   const { data: userWallet } = useNativeBalance();
@@ -80,19 +84,48 @@ function App() {
     msgValue: 0,
   };
 
+  // DEBUG WATCHERS
+  useEffect(() => {
+    console.log('Web3Enabled', isWeb3Enabled);
+  }, [isWeb3Enabled]);
+
+  useEffect(() => {
+    console.log('Authenticated', isAuthenticated);
+  }, [isAuthenticated]);
+
+  useEffect(() => {
+    console.log('Promo Code:', promotionCode);
+  }, [promotionCode]);
+
+  useEffect(() => {
+    console.log('Values:', values);
+  }, [values]);
+
+  // AUTHENTICATION
   async function signIn(providerId) {
-    await authenticate({ provider: providerId });
+    providerId === 'web3Auth'
+      ? await authenticate({ provider: providerId, clientId: AppConfig.web3AuthClientId, chainId: AppConfig.supportChainId, appLogo: logo })
+      : await authenticate({ provider: providerId });
+    await enableWeb3({ provider: providerId });
+    localStorage.setItem('local_provider', providerId);
   }
 
   async function signOut() {
     await logout();
+    localStorage.removeItem('local_provider');
+    setShowMyAssets(false);
+    setError('');
     setValues(() => defaultState);
   }
 
+  // INITIALIZATION
   useEffect(() => {
     async function initialize() {
       if (isAuthenticated && !isWeb3Enabled && !isWeb3EnableLoading) {
-        await enableWeb3();
+        const providerId = localStorage.getItem('local_provider');
+        providerId === 'web3Auth'
+          ? await enableWeb3({ provider: localStorage.getItem('local_provider'), clientId: AppConfig.web3AuthClientId, chainId: AppConfig.supportChainId })
+          : await enableWeb3({ provider: localStorage.getItem('local_provider') });
       }
       if (isAuthenticated && isWeb3Enabled) {
         await initWallet();
@@ -117,14 +150,9 @@ function App() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isAuthenticated, isWeb3Enabled, account, chain]);
 
-  useEffect(() => {
-    //console.log('VALUES', values);
-    //console.log('PARAM', promotionCode);
-  }, [values]);
-
   async function initWallet() {
+    console.log('Initializing Wallet...');
     setProcessing(true);
-
     setValues(() => defaultState);
 
     if (!account) {
@@ -143,6 +171,7 @@ function App() {
     let isFreelistMintEnabled = false;
     let isGoldlistMintEnabled = false;
     let isPreSaleMintEnabled = false;
+    let nfts = null;
 
     // COLLECTION PROPERTIES
     try {
@@ -157,6 +186,17 @@ function App() {
       isPreSaleMintEnabled = await Moralis.executeFunction({ ...nftContractOptions, functionName: 'preSaleMintEnabled' });
       isReleased = await Moralis.executeFunction({ ...nftContractOptions, functionName: 'released' });
       nftWallet = await Moralis.executeFunction({ ...nftContractOptions, params: { _owner: account }, functionName: 'walletOfOwner' });
+
+      /*nfts = await Moralis.Web3API.account
+        .getNFTsForContract({
+          chain: AppConfig.supportChainId,
+          address: account,
+          token_address: CollectionConfig.contractAddress,
+        })
+        .then((response) => response && response.result)
+        .catch((_) => []);
+      console.log(nfts);
+      */
     } catch (e) {
       console.error(e);
       setContractFound(false);
@@ -181,6 +221,7 @@ function App() {
       isUserInGoldlist: Goldlist.contains(account ?? ''),
       isReleased: isReleased,
       nftWallet: nftWallet,
+      nfts: nfts,
     }));
 
     setContractFound(true);
@@ -234,8 +275,13 @@ function App() {
     await initWallet();
   }
 
-  const isMainNet = () => chainId === '0x1';
-  const isTestNet = () => chainId === '0x4';
+  function viewMyAssets() {
+    if (shouldShowMyAssets) return;
+    setShowMyAssets(true);
+  }
+
+  const isMainNet = () => AppConfig.isMainnet;
+  const isTestNet = () => !AppConfig.isMainnet;
   const isWalletConnected = () => account !== null && isAuthenticated;
   const isSoldOut = () => values.maxSupply !== 0 && values.totalSupply >= values.maxSupply;
   const isPurchaseEnabled = () => isWalletConnected() && !isSoldOut() && !values.isMintingPaused && contractFound && ((values.isReleased && isMainNet()) || (!values.isReleased && !isMainNet()));
@@ -253,9 +299,6 @@ function App() {
   const showNotOnMainNet = () => !processing && !values.isReleased && isMainNet();
   const showNotOnTestNet = () => !processing && values.isReleased && !isMainNet();
 
-  const mintCostInEth = () => Moralis.Units.FromWei(values.tokenPrice, 18) * mintAmount;
-  console.log(`"${mintCostInEth().toString()}"`);
-
   return (
     <Container disableGutters maxWidth="false">
       <Header
@@ -267,6 +310,11 @@ function App() {
         processing={processing}
         setProcessing={setProcessing}
         nftContractOptions={nftContractOptions}
+        viewMyAssets={values.nfts && values.nfts.length > 0 ? viewMyAssets : undefined}
+        viewHome={() => {
+          if (!shouldShowMyAssets) return;
+          setShowMyAssets(false);
+        }}
       />
       <div
         style={{
@@ -278,52 +326,55 @@ function App() {
           backgroundImage: `url(${background})`,
         }}
       >
-        <Container fixed={true} maxWidth="xs">
-          <Stack spacing={2} sx={{ overflow: 'visible' }}>
-            {/* MAIN COLLECTION UX */}
+        {!shouldShowMyAssets ? (
+          <Container fixed={true} maxWidth="xs">
+            <Stack spacing={2} sx={{ overflow: 'visible' }}>
+              {/* MAIN COLLECTION UX */}
 
-            <Card raised={true} elevation={20} sx={{ border: 3, borderColor: 'white', overflow: 'visible' }}>
-              <CardMedia component="img" image={XastroLogo} alt="DEIXA Xastro" sx={{ bgcolor: 'black', py: 2, borderRadius: '4px 4px 0 0' }} />
+              <Card raised={true} elevation={20} sx={{ border: 3, borderColor: 'white', overflow: 'visible' }}>
+                <CardMedia component="img" image={XastroLogo} alt="DEIXA Xastro" sx={{ bgcolor: 'black', py: 2, borderRadius: '4px 4px 0 0' }} />
 
-              {showNoWalletConnected() && <NoWalletConnected signIn={signIn} />}
+                {showNoWalletConnected() && <NoWalletConnected signIn={signIn} />}
 
-              {showContractNotFound() && <NoContractFond />}
+                {showContractNotFound() && <NoContractFond />}
 
-              {showSomethingWentWrong() && <SomethingWentWrong error={error} setError={setError} />}
+                {showSomethingWentWrong() && <SomethingWentWrong error={error} setError={setError} />}
 
-              {showLoadingCollectionInfo() && <LoadingCollectionInfo />}
+                {showLoadingCollectionInfo() && <LoadingCollectionInfo />}
 
-              {showProcessingTransaction() && <ProcessingTransaction transaction={transaction} isTestNet={isTestNet} />}
+                {showProcessingTransaction() && <ProcessingTransaction transaction={transaction} isTestNet={isTestNet} />}
 
-              {showTransactionComplete() && <TransactionComplete transaction={transaction} acknowledge={acknowledgeTransaction} isTestNet={isTestNet} />}
+                {showTransactionComplete() && <TransactionComplete transaction={transaction} acknowledge={acknowledgeTransaction} isTestNet={isTestNet} />}
 
-              {showCollectionInfo() && <CollectionInfo values={values} />}
+                {showCollectionInfo() && <CollectionInfo values={values} />}
 
-              <Divider />
+                <Divider />
 
-              {showMintingControls() && <MintingControls values={values} mintAmount={mintAmount} setMintAmount={setMintAmount} mintNFT={mintNFT} />}
+                {showMintingControls() && <MintingControls values={values} mintAmount={mintAmount} setMintAmount={setMintAmount} mintNFT={mintNFT} />}
+              </Card>
 
-              {/*               <CrossmintPayButton
-                collectionTitle="Xastro Origin"
-                collectionDescription="DEIXA Xastro Origin is a collection of 14,444 unique NFTs that are the gateway to an innovative diverse & inclusive community, built around epic reward experiences and obsessed with data privacy, respect and transparency."
-                collectionPhoto="<COLLECTION_IMAGE_URL>"
-                clientId="9d9a47e1-cf27-4c12-836a-955b4f3dc8f1"
-                mintConfig={{ type: 'erc-721', totalPrice: `"${mintCostInEth().toString()}"`, _mintAmount: `"${mintAmount.toString()}"`, _promotionCode: promotionCode ? promotionCode : 'deixa' }}
-                environment="staging"
-              /> */}
-            </Card>
+              {/* ADDITIONAL INFO CARDS FOR VARIOUS CONDITIONS */}
 
-            {/* ADDITIONAL INFO CARDS FOR VARIOUS CONDITIONS */}
+              {!shouldShowMyAssets && showSaleClosed() && <SaleClosed />}
 
-            {showSaleClosed() && <SaleClosed />}
+              {!shouldShowMyAssets && showSoldOut() && <SoldOut isTestNet={isTestNet} collectionUrl={CollectionConfig.openSeaURL} />}
 
-            {showSoldOut() && <SoldOut isTestNet={isTestNet} collectionUrl={CollectionConfig.openSeaURL} />}
+              {showNotOnMainNet() && <WrongNetwork network={'Ethereum TestNet'} />}
 
-            {showNotOnMainNet() && <WrongNetwork network={'Ethereum TestNet'} />}
-
-            {showNotOnTestNet() && <WrongNetwork network={'Ethereum MainNet'} />}
-          </Stack>
-        </Container>
+              {showNotOnTestNet() && <WrongNetwork network={'Ethereum MainNet'} />}
+            </Stack>
+          </Container>
+        ) : (
+          <Card sx={{ maxWidth: '90%', maxHeight: '69%', overflow: 'scroll', p: 4 }}>
+            <Grid container spacing={4}>
+              {values.nfts.map((nft) => (
+                <Grid key={nft.token_id} item xs={3}>
+                  <Nft nft={nft} metadata={nft.metadata && JSON.parse(nft.metadata)} isTestNet={isTestNet} />
+                </Grid>
+              ))}
+            </Grid>
+          </Card>
+        )}
       </div>
     </Container>
   );

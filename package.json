@@ -1,10 +1,11 @@
 {
-  "homepage": "https://james-iacabucci.github.io/deixa-xastros-minting-dapp",
+  "homepage": ".",
   "name": "deixa-xastro-minting-dapp",
   "version": "1.0",
   "private": true,
+  "proxy": "http://localhost:3000/",
   "dependencies": {
-    "@crossmint/client-sdk-react-ui": "^0.1.7-alpha.1",
+    "@web3auth/web3auth": "^0.5.1",
     "@emotion/react": "^11.9.3",
     "@emotion/styled": "^11.9.3",
     "@mui/icons-material": "^5.4.4",
@@ -14,12 +15,12 @@
     "@testing-library/user-event": "^13.5.0",
     "@walletconnect/web3-provider": "^1.7.3",
     "install": "^0.13.0",
-    "moralis": "^1.8.1",
+    "moralis": "^1.10.1",
     "npm": "^8.13.2",
     "react": "^17.0.2",
     "react-confetti-explosion": "^1.0.3",
     "react-dom": "^17.0.2",
-    "react-moralis": "^1.3.2",
+    "react-moralis": "^1.4.0",
     "react-router-dom": "^6.3.0",
     "react-scripts": "4.0.3",
     "web-vitals": "^2.1.4"

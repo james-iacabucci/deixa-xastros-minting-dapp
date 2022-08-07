@@ -1,5 +1,5 @@
+import { Button, CardActions, CardContent, Typography } from '@mui/material';
 import * as React from 'react';
-import { CardActions, CardContent, Typography, Button } from '@mui/material';
 
 export default function NoWalletConnected({ signIn }) {
   return (
@@ -15,6 +15,11 @@ export default function NoWalletConnected({ signIn }) {
         </Button>
         <Button fullWidth sx={{ color: 'white' }} variant="contained" onClick={() => signIn('walletconnect')}>
           WalletConnect
+        </Button>
+      </CardActions>
+      <CardActions>
+        <Button fullWidth sx={{ color: 'white' }} variant="contained" onClick={() => signIn('web3Auth')}>
+          Create Deixa Wallet
         </Button>
       </CardActions>
     </>
