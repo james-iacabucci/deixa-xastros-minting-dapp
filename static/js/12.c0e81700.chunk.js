@@ -1,2 +1,0 @@
-(this["webpackJsonpdeixa-xastro-minting-dapp"]=this["webpackJsonpdeixa-xastro-minting-dapp"]||[]).push([[12],{1591:function(n,i){},1592:function(n,i){},1677:function(n,i){},1681:function(n,i){},1683:function(n,i){},1685:function(n,i){}}]);
-//# sourceMappingURL=12.c0e81700.chunk.js.map
