@@ -267,9 +267,6 @@ function App() {
   const showNotOnMainNet = () => !processing && !values.isReleased && isMainNet();
   const showNotOnTestNet = () => !processing && values.isReleased && !isMainNet();
 
-  const mintCostInEth = () => Moralis.Units.FromWei(values.tokenPrice, 18) * mintAmount;
-  console.log(`"${mintCostInEth().toString()}"`);
-
   return (
     <Container disableGutters maxWidth="false">
       <Header
