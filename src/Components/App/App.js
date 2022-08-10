@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 
 // UI LIBRARIES
-import { Card, CardMedia, Stack, Divider, Container } from '@mui/material';
+import { Card, CardMedia, Stack, Divider, Link, Container } from '@mui/material';
 
 // WEB3 LIBRARIES
 import { BigNumber } from 'ethers';
@@ -91,6 +91,10 @@ function App() {
   useEffect(() => {
     console.log('isAuthenticated', isAuthenticated);
   }, [isAuthenticated]);
+
+  useEffect(() => {
+    console.log('chainId', chainId);
+  }, [chainId]);
 
   function getProviderParam(providerId) {
     switch (providerId) {
@@ -308,7 +312,9 @@ function App() {
             {/* MAIN COLLECTION UX */}
 
             <Card raised={true} elevation={20} sx={{ border: 3, borderColor: 'white', overflow: 'visible' }}>
-              <CardMedia component="img" image={XastroLogo} alt="DEIXA Xastro" sx={{ bgcolor: 'black', py: 2, borderRadius: '4px 4px 0 0' }} />
+              <Link href={`https://${!values.isReleased ? 'rinkeby.' : ''}etherscan.io/address/${nftContractOptions.contractAddress}`} target="_blank">
+                <CardMedia component="img" image={XastroLogo} alt="DEIXA Xastro" sx={{ bgcolor: 'black', py: 2, borderRadius: '4px 4px 0 0' }} />
+              </Link>
 
               {showNoWalletConnected() && <NoWalletConnected signIn={signIn} />}
 
