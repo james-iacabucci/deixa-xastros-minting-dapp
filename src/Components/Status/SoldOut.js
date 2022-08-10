@@ -13,9 +13,11 @@ export default function SoldOut({ isTestNet, collectionUrl }) {
       <Typography variant="body2" color="primary" align="center">
         Our current sale is sold out, but please come back for our next sale!
       </Typography>
+      {/* LEGAL ADVISED NOT TO PROMOTE OPENSEA TRADING
       <Button variant="contained" fullWidth sx={{ mt: 2 }} onClick={() => openInNewTab(`https://${isTestNet() ? 'testnets.' : ''}${collectionUrl}`)}>
         Buy Deixa Xastro Origin on OpenSea
-      </Button>
+      </Button> 
+      */}
     </MessageCard>
   );
 }

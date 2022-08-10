@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 
 // UI LIBRARIES
-import { Card, CardMedia, Container, Divider, Grid, Stack } from '@mui/material';
+import { Box, Button, Card, CardMedia, Container, Dialog, DialogActions, DialogContent, DialogTitle, Divider, IconButton, Link, Stack, Typography } from '@mui/material';
 
 // WEB3 LIBRARIES
 import { BigNumber } from 'ethers';
@@ -19,11 +19,13 @@ import Goldlist from '../Utils/Goldlist';
 import Header from './../Header/Header';
 
 // DAPP COMPONENTS
+import { CloseOutlined } from '@mui/icons-material';
 import logo from '../../Assets/Logos/DeixaFlat.png';
 import AppConfig from '../../Config/AppConfig';
 import CollectionInfo from '../CollectionInfo/CollectionInfo';
 import MintingControls from '../MintingControls/MintingControls';
-import Nft from '../Nft';
+import MyAssets from '../MyAssets';
+import Onramper from '../Onramper';
 import LoadingCollectionInfo from '../Status/LoadingCollectionInfo';
 import NoContractFond from '../Status/NoContractFound';
 import NoWalletConnected from '../Status/NoWalletConnected';
@@ -53,7 +55,6 @@ const defaultState = {
   isUserInFreelist: false,
   isUserInGoldlist: false,
   nftWallet: [],
-  nfts: [],
   isReleased: false,
   saleStage: null,
   merkleProofManualAddress: '',
@@ -72,6 +73,7 @@ function App() {
   const [contractFound, setContractFound] = useState(false);
   const [transactionCompleted, setTransactionCompleted] = useState(false);
   const [shouldShowMyAssets, setShowMyAssets] = useState(false);
+  const [shouldShowBuyEth, setShowBuyEth] = useState(false);
 
   const { chainId } = useChain();
   const { data: userWallet } = useNativeBalance();
@@ -101,12 +103,22 @@ function App() {
     console.log('Values:', values);
   }, [values]);
 
+  function getProviderParam(providerId) {
+    switch (providerId) {
+      case 'walletconnect':
+        //return { provider: providerId, chainId: parseInt(AppConfig.supportChainId, 16) };
+        return { provider: providerId };
+      case 'web3Auth':
+        return { provider: providerId, clientId: AppConfig.web3AuthClientId, chainId: AppConfig.supportChainId, appLogo: logo };
+      case 'metamask':
+      default:
+        return { provider: providerId };
+    }
+  }
+
   // AUTHENTICATION
   async function signIn(providerId) {
-    providerId === 'web3Auth'
-      ? await authenticate({ provider: providerId, clientId: AppConfig.web3AuthClientId, chainId: AppConfig.supportChainId, appLogo: logo })
-      : await authenticate({ provider: providerId });
-    await enableWeb3({ provider: providerId });
+    await authenticate(getProviderParam(providerId));
     localStorage.setItem('local_provider', providerId);
   }
 
@@ -122,10 +134,7 @@ function App() {
   useEffect(() => {
     async function initialize() {
       if (isAuthenticated && !isWeb3Enabled && !isWeb3EnableLoading) {
-        const providerId = localStorage.getItem('local_provider');
-        providerId === 'web3Auth'
-          ? await enableWeb3({ provider: localStorage.getItem('local_provider'), clientId: AppConfig.web3AuthClientId, chainId: AppConfig.supportChainId })
-          : await enableWeb3({ provider: localStorage.getItem('local_provider') });
+        await enableWeb3(getProviderParam(localStorage.getItem('local_provider')));
       }
       if (isAuthenticated && isWeb3Enabled) {
         await initWallet();
@@ -171,7 +180,6 @@ function App() {
     let isFreelistMintEnabled = false;
     let isGoldlistMintEnabled = false;
     let isPreSaleMintEnabled = false;
-    let nfts = null;
 
     // COLLECTION PROPERTIES
     try {
@@ -186,17 +194,6 @@ function App() {
       isPreSaleMintEnabled = await Moralis.executeFunction({ ...nftContractOptions, functionName: 'preSaleMintEnabled' });
       isReleased = await Moralis.executeFunction({ ...nftContractOptions, functionName: 'released' });
       nftWallet = await Moralis.executeFunction({ ...nftContractOptions, params: { _owner: account }, functionName: 'walletOfOwner' });
-
-      /*nfts = await Moralis.Web3API.account
-        .getNFTsForContract({
-          chain: AppConfig.supportChainId,
-          address: account,
-          token_address: CollectionConfig.contractAddress,
-        })
-        .then((response) => response && response.result)
-        .catch((_) => []);
-      console.log(nfts);
-      */
     } catch (e) {
       console.error(e);
       setContractFound(false);
@@ -221,7 +218,6 @@ function App() {
       isUserInGoldlist: Goldlist.contains(account ?? ''),
       isReleased: isReleased,
       nftWallet: nftWallet,
-      nfts: nfts,
     }));
 
     setContractFound(true);
@@ -275,9 +271,16 @@ function App() {
     await initWallet();
   }
 
-  function viewMyAssets() {
-    if (shouldShowMyAssets) return;
-    setShowMyAssets(true);
+  function viewMyAssets(shouldShow) {
+    setShowMyAssets(shouldShow);
+  }
+
+  function onShowBuyEth(shouldShow) {
+    setShowBuyEth(shouldShow);
+  }
+
+  function openInNewTab(url) {
+    window.open(url, '_blank', 'noopener,noreferrer');
   }
 
   const isMainNet = () => AppConfig.isMainnet;
@@ -296,8 +299,8 @@ function App() {
   const showMintingControls = () => !processing && isPurchaseEnabled() && !error && !transactionCompleted;
   const showSaleClosed = () => !processing && values.isMintingPaused && contractFound;
   const showSoldOut = () => !processing && isSoldOut() && contractFound;
-  const showNotOnMainNet = () => !processing && !values.isReleased && isMainNet();
-  const showNotOnTestNet = () => !processing && values.isReleased && !isMainNet();
+  const showNotOnMainNet = () => !processing && values.isReleased && !isMainNet();
+  const showNotOnTestNet = () => !processing && !values.isReleased && isMainNet();
 
   return (
     <Container disableGutters maxWidth="false">
@@ -310,11 +313,8 @@ function App() {
         processing={processing}
         setProcessing={setProcessing}
         nftContractOptions={nftContractOptions}
-        viewMyAssets={values.nfts && values.nfts.length > 0 ? viewMyAssets : undefined}
-        viewHome={() => {
-          if (!shouldShowMyAssets) return;
-          setShowMyAssets(false);
-        }}
+        viewMyAssets={viewMyAssets}
+        buyEth={onShowBuyEth}
       />
       <div
         style={{
@@ -326,55 +326,101 @@ function App() {
           backgroundImage: `url(${background})`,
         }}
       >
-        {!shouldShowMyAssets ? (
-          <Container fixed={true} maxWidth="xs">
-            <Stack spacing={2} sx={{ overflow: 'visible' }}>
-              {/* MAIN COLLECTION UX */}
+        <Container fixed={true} maxWidth="xs">
+          <Stack spacing={2} sx={{ overflow: 'visible' }}>
+            {/* MAIN COLLECTION UX */}
 
-              <Card raised={true} elevation={20} sx={{ border: 3, borderColor: 'white', overflow: 'visible' }}>
+            <Card raised={true} elevation={20} sx={{ border: 3, borderColor: 'white', overflow: 'visible' }}>
+              <Link href={`https://${isTestNet() ? `${AppConfig.supportChainName.toLowerCase()}.` : ''}etherscan.io/address/${nftContractOptions.contractAddress}`} target="_blank">
                 <CardMedia component="img" image={XastroLogo} alt="DEIXA Xastro" sx={{ bgcolor: 'black', py: 2, borderRadius: '4px 4px 0 0' }} />
+              </Link>
 
-                {showNoWalletConnected() && <NoWalletConnected signIn={signIn} />}
+              {showNoWalletConnected() && <NoWalletConnected signIn={signIn} />}
 
-                {showContractNotFound() && <NoContractFond />}
+              {showContractNotFound() && <NoContractFond />}
 
-                {showSomethingWentWrong() && <SomethingWentWrong error={error} setError={setError} />}
+              {showSomethingWentWrong() && <SomethingWentWrong error={error} setError={setError} onBuyEth={() => onShowBuyEth(true)} />}
 
-                {showLoadingCollectionInfo() && <LoadingCollectionInfo />}
+              {showLoadingCollectionInfo() && <LoadingCollectionInfo />}
 
-                {showProcessingTransaction() && <ProcessingTransaction transaction={transaction} isTestNet={isTestNet} />}
+              {showProcessingTransaction() && <ProcessingTransaction transaction={transaction} isTestNet={isTestNet} />}
 
-                {showTransactionComplete() && <TransactionComplete transaction={transaction} acknowledge={acknowledgeTransaction} isTestNet={isTestNet} />}
+              {showTransactionComplete() && <TransactionComplete transaction={transaction} acknowledge={acknowledgeTransaction} isTestNet={isTestNet} />}
 
-                {showCollectionInfo() && <CollectionInfo values={values} />}
+              {showCollectionInfo() && <CollectionInfo values={values} />}
 
-                <Divider />
+              <Divider />
 
-                {showMintingControls() && <MintingControls values={values} mintAmount={mintAmount} setMintAmount={setMintAmount} mintNFT={mintNFT} />}
-              </Card>
+              {showMintingControls() && <MintingControls values={values} mintAmount={mintAmount} setMintAmount={setMintAmount} mintNFT={mintNFT} />}
+            </Card>
 
-              {/* ADDITIONAL INFO CARDS FOR VARIOUS CONDITIONS */}
+            {/* ADDITIONAL INFO CARDS FOR VARIOUS CONDITIONS */}
 
-              {!shouldShowMyAssets && showSaleClosed() && <SaleClosed />}
+            {showSaleClosed() && <SaleClosed />}
 
-              {!shouldShowMyAssets && showSoldOut() && <SoldOut isTestNet={isTestNet} collectionUrl={CollectionConfig.openSeaURL} />}
+            {showSoldOut() && <SoldOut isTestNet={isTestNet} collectionUrl={CollectionConfig.openSeaURL} />}
 
-              {showNotOnMainNet() && <WrongNetwork network={'Ethereum TestNet'} />}
+            {showNotOnMainNet() && <WrongNetwork network={'Ethereum TestNet'} />}
 
-              {showNotOnTestNet() && <WrongNetwork network={'Ethereum MainNet'} />}
-            </Stack>
-          </Container>
-        ) : (
-          <Card sx={{ maxWidth: '90%', maxHeight: '69%', overflow: 'scroll', p: 4 }}>
-            <Grid container spacing={4}>
-              {values.nfts.map((nft) => (
-                <Grid key={nft.token_id} item xs={3}>
-                  <Nft nft={nft} metadata={nft.metadata && JSON.parse(nft.metadata)} isTestNet={isTestNet} />
-                </Grid>
-              ))}
-            </Grid>
-          </Card>
-        )}
+            {showNotOnTestNet() && <WrongNetwork network={'Ethereum MainNet'} />}
+          </Stack>
+        </Container>
+
+        <Dialog
+          open={shouldShowMyAssets}
+          onClose={() => viewMyAssets(false)}
+          fullWidth
+          maxWidth="lg"
+          PaperProps={{
+            style: {
+              minHeight: '50%',
+            },
+          }}
+        >
+          <DialogTitle>
+            <Box display="flex" flexDirection="row" alignItems="center" justifyContent="space-between">
+              <Typography variant="h6">My Assets</Typography>
+              <IconButton onClick={() => viewMyAssets(false)}>
+                <CloseOutlined />
+              </IconButton>
+            </Box>
+          </DialogTitle>
+          <DialogContent>
+            <MyAssets />
+          </DialogContent>
+          {values.nftWallet && values.nftWallet.length > 0 && (
+            <DialogActions style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end' }}>
+              <Button onClick={() => window.open(`https://${isTestNet ? 'testnets.' : ''}${CollectionConfig.openSeaURL}`, '_blank', 'noopener,noreferrer')} color="primary">
+                View on OpenSea
+              </Button>
+              <Typography align="right" variant="subtitle2">
+                Connect to OpenSea Using your Deixa Wallet by Selecting Torus Wallet
+              </Typography>
+            </DialogActions>
+          )}
+        </Dialog>
+
+        <Dialog
+          open={shouldShowBuyEth}
+          onClose={() => onShowBuyEth(false)}
+          PaperProps={{
+            style: {
+              minHeight: '82%',
+            },
+          }}
+        >
+          <DialogTitle>
+            <Box display="flex" flexDirection="row" alignItems="center" justifyContent="space-between">
+              <Typography variant="h6"></Typography>
+              <IconButton onClick={() => onShowBuyEth(false)}>
+                <CloseOutlined />
+              </IconButton>
+            </Box>
+          </DialogTitle>
+          <DialogContent>
+            <Onramper />
+          </DialogContent>
+        </Dialog>
       </div>
     </Container>
   );

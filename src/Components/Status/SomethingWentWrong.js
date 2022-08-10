@@ -1,10 +1,7 @@
 import { Button, CardActions, CardContent, Stack, Typography } from '@mui/material';
 import * as React from 'react';
-import { useMoralis } from 'react-moralis';
 
-export default function SomethingWentWrong({ error, setError }) {
-  const { account, Moralis } = useMoralis();
-
+export default function SomethingWentWrong({ error, setError, onBuyEth }) {
   function formatErrorMessage(error) {
     if (error.message.includes('This is an invalid')) return 'Your wallet address is not on the approved list.';
     if (error.message.includes('Your address has already claimed')) return `Your wallet address has already claimed an NFT for this stage of the sale.`;
@@ -21,19 +18,6 @@ export default function SomethingWentWrong({ error, setError }) {
         return `An error has occurred while processing your transaction (${error.message})`;
     }
   }
-
-  const onBuyETHClick = async () => {
-    let response = await Moralis.Plugins.fiat.buy(
-      {
-        coin: 'ETH',
-        receiver: account,
-      },
-      {
-        disableTriggers: true,
-      },
-    );
-    window.open(response.data, '_blank');
-  };
 
   return (
     <>
@@ -54,7 +38,7 @@ export default function SomethingWentWrong({ error, setError }) {
             sx={{ color: 'white' }}
             variant="contained"
             onClick={async () => {
-              await onBuyETHClick();
+              onBuyEth();
               setError(null);
             }}
           >

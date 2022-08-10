@@ -5,6 +5,8 @@ export default function MessageCard(props) {
   return (
     <Card
       sx={{
+        border: 0.25,
+        borderColor: 'white',
         position: 'relative',
         display: 'flex',
         padding: '1em',
