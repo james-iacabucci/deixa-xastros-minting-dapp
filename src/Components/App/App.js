@@ -4,37 +4,32 @@ import { useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 
 // UI LIBRARIES
-import { Box, Button, Card, CardMedia, Container, Dialog, DialogActions, DialogContent, DialogTitle, Divider, IconButton, Link, Stack, Typography } from '@mui/material';
+import { Card, CardMedia, Stack, Divider, Container } from '@mui/material';
 
 // WEB3 LIBRARIES
 import { BigNumber } from 'ethers';
-import { useChain, useMoralis, useNativeBalance } from 'react-moralis';
+import { useMoralis, useNativeBalance, useChain } from 'react-moralis';
 
 // DAPP ASSETS
-import background from '../../Assets/background4.png';
-import XastroLogo from '../../Assets/Logos/Xastro.png';
-import CollectionConfig from '../../Config/CollectionConfig';
+import Header from './../Header/Header';
 import Freelist from '../Utils/Freelist';
 import Goldlist from '../Utils/Goldlist';
-import Header from './../Header/Header';
+import background from '../../assets/background4.png';
+import XastroLogo from '../../assets/Logos/Xastro.png';
+import CollectionConfig from '../../Config/CollectionConfig';
 
 // DAPP COMPONENTS
-import { CloseOutlined } from '@mui/icons-material';
-import logo from '../../Assets/Logos/DeixaFlat.png';
-import AppConfig from '../../Config/AppConfig';
-import CollectionInfo from '../CollectionInfo/CollectionInfo';
-import MintingControls from '../MintingControls/MintingControls';
-import MyAssets from '../MyAssets';
-import Onramper from '../Onramper';
-import LoadingCollectionInfo from '../Status/LoadingCollectionInfo';
+import SoldOut from '../Status/SoldOut';
+import SaleClosed from '../Status/SaleClosed';
+import WrongNetwork from '../Status/WrongNetwork';
 import NoContractFond from '../Status/NoContractFound';
 import NoWalletConnected from '../Status/NoWalletConnected';
-import ProcessingTransaction from '../Status/ProcessingTransaction';
-import SaleClosed from '../Status/SaleClosed';
-import SoldOut from '../Status/SoldOut';
 import SomethingWentWrong from '../Status/SomethingWentWrong';
+import CollectionInfo from '../CollectionInfo/CollectionInfo';
 import TransactionComplete from '../Status/TransactionComplete';
-import WrongNetwork from '../Status/WrongNetwork';
+import MintingControls from '../MintingControls/MintingControls';
+import LoadingCollectionInfo from '../Status/LoadingCollectionInfo';
+import ProcessingTransaction from '../Status/ProcessingTransaction';
 
 const nftContractAbi = require('../../Config/DeixaXastroCollection.json').abi;
 
@@ -72,8 +67,6 @@ function App() {
   const [transaction, setTransaction] = useState(null);
   const [contractFound, setContractFound] = useState(false);
   const [transactionCompleted, setTransactionCompleted] = useState(false);
-  const [shouldShowMyAssets, setShowMyAssets] = useState(false);
-  const [shouldShowBuyEth, setShowBuyEth] = useState(false);
 
   const { chainId } = useChain();
   const { data: userWallet } = useNativeBalance();
@@ -86,55 +79,19 @@ function App() {
     msgValue: 0,
   };
 
-  // DEBUG WATCHERS
-  useEffect(() => {
-    console.log('Web3Enabled', isWeb3Enabled);
-  }, [isWeb3Enabled]);
-
-  useEffect(() => {
-    console.log('Authenticated', isAuthenticated);
-  }, [isAuthenticated]);
-
-  useEffect(() => {
-    console.log('Promo Code:', promotionCode);
-  }, [promotionCode]);
-
-  useEffect(() => {
-    console.log('Values:', values);
-  }, [values]);
-
-  function getProviderParam(providerId) {
-    switch (providerId) {
-      case 'walletconnect':
-        //return { provider: providerId, chainId: parseInt(AppConfig.supportChainId, 16) };
-        return { provider: providerId };
-      case 'web3Auth':
-        return { provider: providerId, clientId: AppConfig.web3AuthClientId, chainId: AppConfig.supportChainId, appLogo: logo };
-      case 'metamask':
-      default:
-        return { provider: providerId };
-    }
-  }
-
-  // AUTHENTICATION
   async function signIn(providerId) {
-    await authenticate(getProviderParam(providerId));
-    localStorage.setItem('local_provider', providerId);
+    await authenticate({ provider: providerId });
   }
 
   async function signOut() {
     await logout();
-    localStorage.removeItem('local_provider');
-    setShowMyAssets(false);
-    setError('');
     setValues(() => defaultState);
   }
 
-  // INITIALIZATION
   useEffect(() => {
     async function initialize() {
       if (isAuthenticated && !isWeb3Enabled && !isWeb3EnableLoading) {
-        await enableWeb3(getProviderParam(localStorage.getItem('local_provider')));
+        await enableWeb3();
       }
       if (isAuthenticated && isWeb3Enabled) {
         await initWallet();
@@ -159,9 +116,14 @@ function App() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isAuthenticated, isWeb3Enabled, account, chain]);
 
+  useEffect(() => {
+    //console.log('VALUES', values);
+    //console.log('PARAM', promotionCode);
+  }, [values]);
+
   async function initWallet() {
-    console.log('Initializing Wallet...');
     setProcessing(true);
+
     setValues(() => defaultState);
 
     if (!account) {
@@ -271,20 +233,8 @@ function App() {
     await initWallet();
   }
 
-  function viewMyAssets(shouldShow) {
-    setShowMyAssets(shouldShow);
-  }
-
-  function onShowBuyEth(shouldShow) {
-    setShowBuyEth(shouldShow);
-  }
-
-  function openInNewTab(url) {
-    window.open(url, '_blank', 'noopener,noreferrer');
-  }
-
-  const isMainNet = () => AppConfig.isMainnet;
-  const isTestNet = () => !AppConfig.isMainnet;
+  const isMainNet = () => chainId === '0x1';
+  const isTestNet = () => chainId === '0x4';
   const isWalletConnected = () => account !== null && isAuthenticated;
   const isSoldOut = () => values.maxSupply !== 0 && values.totalSupply >= values.maxSupply;
   const isPurchaseEnabled = () => isWalletConnected() && !isSoldOut() && !values.isMintingPaused && contractFound && ((values.isReleased && isMainNet()) || (!values.isReleased && !isMainNet()));
@@ -299,8 +249,11 @@ function App() {
   const showMintingControls = () => !processing && isPurchaseEnabled() && !error && !transactionCompleted;
   const showSaleClosed = () => !processing && values.isMintingPaused && contractFound;
   const showSoldOut = () => !processing && isSoldOut() && contractFound;
-  const showNotOnMainNet = () => !processing && values.isReleased && !isMainNet();
-  const showNotOnTestNet = () => !processing && !values.isReleased && isMainNet();
+  const showNotOnMainNet = () => !processing && !values.isReleased && isMainNet();
+  const showNotOnTestNet = () => !processing && values.isReleased && !isMainNet();
+
+  const mintCostInEth = () => Moralis.Units.FromWei(values.tokenPrice, 18) * mintAmount;
+  console.log(`"${mintCostInEth().toString()}"`);
 
   return (
     <Container disableGutters maxWidth="false">
@@ -313,8 +266,6 @@ function App() {
         processing={processing}
         setProcessing={setProcessing}
         nftContractOptions={nftContractOptions}
-        viewMyAssets={viewMyAssets}
-        buyEth={onShowBuyEth}
       />
       <div
         style={{
@@ -331,15 +282,13 @@ function App() {
             {/* MAIN COLLECTION UX */}
 
             <Card raised={true} elevation={20} sx={{ border: 3, borderColor: 'white', overflow: 'visible' }}>
-              <Link href={`https://${isTestNet() ? `${AppConfig.supportChainName.toLowerCase()}.` : ''}etherscan.io/address/${nftContractOptions.contractAddress}`} target="_blank">
-                <CardMedia component="img" image={XastroLogo} alt="DEIXA Xastro" sx={{ bgcolor: 'black', py: 2, borderRadius: '4px 4px 0 0' }} />
-              </Link>
+              <CardMedia component="img" image={XastroLogo} alt="DEIXA Xastro" sx={{ bgcolor: 'black', py: 2, borderRadius: '4px 4px 0 0' }} />
 
               {showNoWalletConnected() && <NoWalletConnected signIn={signIn} />}
 
               {showContractNotFound() && <NoContractFond />}
 
-              {showSomethingWentWrong() && <SomethingWentWrong error={error} setError={setError} onBuyEth={() => onShowBuyEth(true)} />}
+              {showSomethingWentWrong() && <SomethingWentWrong error={error} setError={setError} />}
 
               {showLoadingCollectionInfo() && <LoadingCollectionInfo />}
 
@@ -352,6 +301,15 @@ function App() {
               <Divider />
 
               {showMintingControls() && <MintingControls values={values} mintAmount={mintAmount} setMintAmount={setMintAmount} mintNFT={mintNFT} />}
+
+              {/*               <CrossmintPayButton
+                collectionTitle="Xastro Origin"
+                collectionDescription="DEIXA Xastro Origin is a collection of 14,444 unique NFTs that are the gateway to an innovative diverse & inclusive community, built around epic reward experiences and obsessed with data privacy, respect and transparency."
+                collectionPhoto="<COLLECTION_IMAGE_URL>"
+                clientId="9d9a47e1-cf27-4c12-836a-955b4f3dc8f1"
+                mintConfig={{ type: 'erc-721', totalPrice: `"${mintCostInEth().toString()}"`, _mintAmount: `"${mintAmount.toString()}"`, _promotionCode: promotionCode ? promotionCode : 'deixa' }}
+                environment="staging"
+              /> */}
             </Card>
 
             {/* ADDITIONAL INFO CARDS FOR VARIOUS CONDITIONS */}
@@ -365,62 +323,6 @@ function App() {
             {showNotOnTestNet() && <WrongNetwork network={'Ethereum MainNet'} />}
           </Stack>
         </Container>
-
-        <Dialog
-          open={shouldShowMyAssets}
-          onClose={() => viewMyAssets(false)}
-          fullWidth
-          maxWidth="lg"
-          PaperProps={{
-            style: {
-              minHeight: '50%',
-            },
-          }}
-        >
-          <DialogTitle>
-            <Box display="flex" flexDirection="row" alignItems="center" justifyContent="space-between">
-              <Typography variant="h6">My Assets</Typography>
-              <IconButton onClick={() => viewMyAssets(false)}>
-                <CloseOutlined />
-              </IconButton>
-            </Box>
-          </DialogTitle>
-          <DialogContent>
-            <MyAssets />
-          </DialogContent>
-          {values.nftWallet && values.nftWallet.length > 0 && (
-            <DialogActions style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end' }}>
-              <Button onClick={() => window.open(`https://${isTestNet ? 'testnets.' : ''}${CollectionConfig.openSeaURL}`, '_blank', 'noopener,noreferrer')} color="primary">
-                View on OpenSea
-              </Button>
-              <Typography align="right" variant="subtitle2">
-                Connect to OpenSea Using your Deixa Wallet by Selecting Torus Wallet
-              </Typography>
-            </DialogActions>
-          )}
-        </Dialog>
-
-        <Dialog
-          open={shouldShowBuyEth}
-          onClose={() => onShowBuyEth(false)}
-          PaperProps={{
-            style: {
-              minHeight: '82%',
-            },
-          }}
-        >
-          <DialogTitle>
-            <Box display="flex" flexDirection="row" alignItems="center" justifyContent="space-between">
-              <Typography variant="h6"></Typography>
-              <IconButton onClick={() => onShowBuyEth(false)}>
-                <CloseOutlined />
-              </IconButton>
-            </Box>
-          </DialogTitle>
-          <DialogContent>
-            <Onramper />
-          </DialogContent>
-        </Dialog>
       </div>
     </Container>
   );

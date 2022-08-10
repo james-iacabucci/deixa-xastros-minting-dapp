@@ -1,5 +1,5 @@
-import { Button, CardActions, CardContent, Typography } from '@mui/material';
 import * as React from 'react';
+import { CardActions, CardContent, Typography, Button } from '@mui/material';
 
 export default function NoWalletConnected({ signIn }) {
   return (
@@ -9,24 +9,12 @@ export default function NoWalletConnected({ signIn }) {
           Please connect your Ethereum wallet to continue.
         </Typography>
       </CardContent>
-
-      {typeof window.ethereum !== 'undefined' && (
-        <CardActions>
-          <Button fullWidth sx={{ color: 'white' }} variant="contained" onClick={() => signIn('metamask')}>
-            Metamask
-          </Button>
-        </CardActions>
-      )}
-
       <CardActions>
+        <Button fullWidth sx={{ color: 'white' }} variant="contained" onClick={() => signIn('metamask')}>
+          Metamask
+        </Button>
         <Button fullWidth sx={{ color: 'white' }} variant="contained" onClick={() => signIn('walletconnect')}>
           WalletConnect
-        </Button>
-      </CardActions>
-
-      <CardActions>
-        <Button fullWidth sx={{ color: 'white' }} variant="contained" onClick={() => signIn('web3Auth')}>
-          Deixa Wallet
         </Button>
       </CardActions>
     </>

@@ -1,7 +1,6 @@
 import * as React from 'react';
 import { Stack, CardContent, Typography, Button, Chip } from '@mui/material';
 import ConfettiExplosion from 'react-confetti-explosion';
-import AppConfig from '../../Config/AppConfig';
 
 export default function TransactionComplete({ transaction, acknowledge, isTestNet }) {
   const openInNewTab = (url) => window.open(url, '_blank', 'noopener,noreferrer');
@@ -17,7 +16,7 @@ export default function TransactionComplete({ transaction, acknowledge, isTestNe
           You transaction has been confirmed!
         </Typography>
         <Chip variant="outlined" sx={{ fontSize: 9 }} label={transaction} />
-        <Button variant="outlined" fullWidth size="small" onClick={() => openInNewTab(`https://${isTestNet() ? `${AppConfig.supportChainName.toLowerCase()}.` : ''}etherscan.io/tx/${transaction}`)}>
+        <Button variant="outlined" fullWidth size="small" onClick={() => openInNewTab(`https://${isTestNet() ? 'rinkeby.' : ''}etherscan.io/tx/${transaction}`)}>
           View your transaction on EtherScan
         </Button>
         <Button fullWidth sx={{ color: 'white' }} variant="contained" onClick={() => acknowledge()}>

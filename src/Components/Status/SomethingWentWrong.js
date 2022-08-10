@@ -1,7 +1,7 @@
-import { Button, CardActions, CardContent, Stack, Typography } from '@mui/material';
 import * as React from 'react';
+import { Stack, Button, CardActions, CardContent, Typography } from '@mui/material';
 
-export default function SomethingWentWrong({ error, setError, onBuyEth }) {
+export default function SomethingWentWrong({ error, setError }) {
   function formatErrorMessage(error) {
     if (error.message.includes('This is an invalid')) return 'Your wallet address is not on the approved list.';
     if (error.message.includes('Your address has already claimed')) return `Your wallet address has already claimed an NFT for this stage of the sale.`;
@@ -32,23 +32,9 @@ export default function SomethingWentWrong({ error, setError, onBuyEth }) {
         </Stack>
       </CardContent>
       <CardActions>
-        {error.code === 'INSUFFICIENT_FUNDS' ? (
-          <Button
-            fullWidth
-            sx={{ color: 'white' }}
-            variant="contained"
-            onClick={async () => {
-              onBuyEth();
-              setError(null);
-            }}
-          >
-            Buy ETH
-          </Button>
-        ) : (
-          <Button fullWidth sx={{ color: 'white' }} variant="contained" onClick={() => setError(null)}>
-            OK
-          </Button>
-        )}
+        <Button fullWidth sx={{ color: 'white' }} variant="contained" onClick={() => setError(null)}>
+          OK
+        </Button>
       </CardActions>
     </>
   );
