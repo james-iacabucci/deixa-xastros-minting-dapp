@@ -70,7 +70,8 @@ function App() {
 
   const { chainId } = useChain();
   const { data: userWallet } = useNativeBalance();
-  const { authenticate, logout, isWeb3Enabled, enableWeb3, isAuthenticated, isWeb3EnableLoading, account, chain, Moralis } = useMoralis();
+
+  const { authenticate, logout, isWeb3Enabled, isInitialized, enableWeb3, isAuthenticated, isWeb3EnableLoading, account, chain, Moralis } = useMoralis();
 
   let nftContractOptions = {
     contractAddress: CollectionConfig.contractAddress,
@@ -79,11 +80,23 @@ function App() {
     msgValue: 0,
   };
 
+  useEffect(() => {
+    console.log('isInitialized', isInitialized);
+  }, [isInitialized]);
+
+  useEffect(() => {
+    console.log('isWeb3Enabled', isWeb3Enabled);
+  }, [isWeb3Enabled]);
+
+  useEffect(() => {
+    console.log('isAuthenticated', isAuthenticated);
+  }, [isAuthenticated]);
+
   function getProviderParam(providerId) {
     switch (providerId) {
       case 'walletconnect':
         //return { provider: providerId, chainId: parseInt(AppConfig.supportChainId, 16) };
-        return { provider: providerId };
+        return { provider: providerId, chainId: 4 };
       //case 'web3Auth':
       //  return { provider: providerId, clientId: AppConfig.web3AuthClientId, chainId: AppConfig.supportChainId, appLogo: logo };
       case 'metamask':
@@ -106,6 +119,7 @@ function App() {
   useEffect(() => {
     async function initialize() {
       if (isAuthenticated && !isWeb3Enabled && !isWeb3EnableLoading) {
+        console.log('CALLING WEB3ENABLE');
         await enableWeb3(getProviderParam(localStorage.getItem('local_provider')));
       }
       if (isAuthenticated && isWeb3Enabled) {
@@ -138,7 +152,7 @@ function App() {
 
   async function initWallet() {
     setProcessing(true);
-
+    console.log('CALLING INIT WALLET');
     setValues(() => defaultState);
 
     if (!account) {
