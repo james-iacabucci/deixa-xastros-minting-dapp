@@ -79,19 +79,34 @@ function App() {
     msgValue: 0,
   };
 
+  function getProviderParam(providerId) {
+    switch (providerId) {
+      case 'walletconnect':
+        //return { provider: providerId, chainId: parseInt(AppConfig.supportChainId, 16) };
+        return { provider: providerId };
+      //case 'web3Auth':
+      //  return { provider: providerId, clientId: AppConfig.web3AuthClientId, chainId: AppConfig.supportChainId, appLogo: logo };
+      case 'metamask':
+      default:
+        return { provider: providerId };
+    }
+  }
+
   async function signIn(providerId) {
     await authenticate({ provider: providerId });
+    localStorage.setItem('local_provider', providerId);
   }
 
   async function signOut() {
     await logout();
+    localStorage.removeItem('local_provider');
     setValues(() => defaultState);
   }
 
   useEffect(() => {
     async function initialize() {
       if (isAuthenticated && !isWeb3Enabled && !isWeb3EnableLoading) {
-        await enableWeb3();
+        await enableWeb3(getProviderParam(localStorage.getItem('local_provider')));
       }
       if (isAuthenticated && isWeb3Enabled) {
         await initWallet();
