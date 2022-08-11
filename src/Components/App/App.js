@@ -190,7 +190,7 @@ function App() {
       isReleased = await Moralis.executeFunction({ ...nftContractOptions, functionName: 'released' });
       nftWallet = await Moralis.executeFunction({ ...nftContractOptions, params: { _owner: account }, functionName: 'walletOfOwner' });
     } catch (e) {
-      console.error(e);
+      console.error('ERROR ENCOUNTERED', e);
       setContractFound(false);
       setProcessing(false);
       return;
