@@ -12,7 +12,7 @@ export default function NoContractFound() {
           The NFT smart contract could not be found.
         </Typography>
         <Typography variant="body2" textAlign={'center'}>
-          Please make sure your wallet is connected to the Ethereum MainNet.
+          Please make sure your wallet is connected to the correct network.
         </Typography>
       </Stack>
     </CardContent>
