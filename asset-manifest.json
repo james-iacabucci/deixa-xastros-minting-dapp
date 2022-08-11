@@ -1,8 +1,8 @@
 {
   "files": {
     "main.css": "/deixa-xastros-minting-dapp/static/css/main.6dea0f05.chunk.css",
-    "main.js": "/deixa-xastros-minting-dapp/static/js/main.1632bfd6.chunk.js",
-    "main.js.map": "/deixa-xastros-minting-dapp/static/js/main.1632bfd6.chunk.js.map",
+    "main.js": "/deixa-xastros-minting-dapp/static/js/main.2eb17977.chunk.js",
+    "main.js.map": "/deixa-xastros-minting-dapp/static/js/main.2eb17977.chunk.js.map",
     "runtime-main.js": "/deixa-xastros-minting-dapp/static/js/runtime-main.8371048a.js",
     "runtime-main.js.map": "/deixa-xastros-minting-dapp/static/js/runtime-main.8371048a.js.map",
     "static/js/2.5ee717ec.chunk.js": "/deixa-xastros-minting-dapp/static/js/2.5ee717ec.chunk.js",
@@ -18,6 +18,6 @@
     "static/js/runtime-main.8371048a.js",
     "static/js/2.5ee717ec.chunk.js",
     "static/css/main.6dea0f05.chunk.css",
-    "static/js/main.1632bfd6.chunk.js"
+    "static/js/main.2eb17977.chunk.js"
   ]
 }
